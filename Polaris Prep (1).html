@@ -1,0 +1,643 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Polaris Prep</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky top bar, one centered column of views switched by hash; test runner is a two-pane reader (text left, questions right) that stacks on phones. */
+:root{
+  --bg:#f2f5f8; --surface:#ffffff; --fg:#10202f; --muted:#5b6b7a; --line:#d9e1e8;
+  --accent:#0a6d8c; --accent-fg:#ffffff; --accent-soft:#dff0f5; --gold:#9a6700; --gold-soft:#fbf0d4;
+  --good:#1d7a4a; --good-soft:#dcf1e4; --bad:#b3362b; --bad-soft:#f9e1de;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Source Sans 3','Segoe UI',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c161f; --surface:#14222e; --fg:#e6eef5; --muted:#93a5b5; --line:#263847;
+  --accent:#4cc3e3; --accent-fg:#06222c; --accent-soft:#12394a; --gold:#f0b73e; --gold-soft:#3a2f12;
+  --good:#5fd394; --good-soft:#143826; --bad:#ff8a7d; --bad-soft:#442019; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c161f; --surface:#14222e; --fg:#e6eef5; --muted:#93a5b5; --line:#263847;
+  --accent:#4cc3e3; --accent-fg:#06222c; --accent-soft:#12394a; --gold:#f0b73e; --gold-soft:#3a2f12;
+  --good:#5fd394; --good-soft:#143826; --bad:#ff8a7d; --bad-soft:#442019; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 16px/1.55 var(--f-body);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:10}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);line-height:1.12;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,6vw,3.4rem);font-weight:800}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.bar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{font:800 1.2rem var(--f-display);color:var(--fg);text-decoration:none;display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand svg{width:26px;height:26px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:7px 12px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:600;font-size:.95rem}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+nav a:hover{color:var(--fg)}
+#who{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.coins{font:500 .9rem var(--f-mono);background:var(--gold-soft);color:var(--gold);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);
+  padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:6px 12px;font-size:.9rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+section.view{padding-top:28px;display:flex;flex-direction:column;gap:24px}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:32px;align-items:center;padding-top:20px}
+.hero p.lead{font-size:1.15rem;color:var(--muted);margin-top:14px;max-width:46ch}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.kicker{font:500 .8rem var(--f-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.stats b{display:block;font:800 2rem var(--f-display);font-variant-numeric:tabular-nums}
+.stats span{color:var(--muted);font-size:.9rem}
+.tag{font:500 .75rem var(--f-mono);padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.tag.gold{background:var(--gold-soft);color:var(--gold)}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 14px;border-radius:999px;font-weight:600;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;gap:10px;min-width:0}
+.card .meta{display:flex;gap:6px;flex-wrap:wrap}
+.card p{color:var(--muted);font-size:.95rem;flex:1}
+.runner{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.runner .pane{min-width:0}
+.passage{max-height:70vh;overflow:auto;font-size:1.02rem}
+.passage p+p{margin-top:12px}
+.runner-top{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.timer{font:500 1.3rem var(--f-mono);background:var(--surface);border:1px solid var(--line);padding:6px 14px;border-radius:8px;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad);border-color:var(--bad)}
+.q{padding:14px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border-bottom:0}
+.q .stem{font-weight:600;margin-bottom:8px}
+.q label.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;cursor:pointer}
+.q label.opt:hover{background:var(--accent-soft)}
+.q input[type=radio]{margin-top:5px;accent-color:var(--accent)}
+.q input[type=text],.field input,.field textarea,.field select{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:.92rem}
+.field textarea{min-height:120px;resize:vertical}
+.hint{color:var(--muted);font-size:.88rem}
+.result-head{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.score{font:800 3.4rem var(--f-display);line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.review .q.ok .stem::before{content:"Correct · ";color:var(--good)}
+.review .q.no .stem::before{content:"Incorrect · ";color:var(--bad)}
+.ans{font-size:.93rem;padding:6px 10px;border-radius:6px;margin-top:4px}
+.ans.good{background:var(--good-soft);color:var(--good)}
+.ans.bad{background:var(--bad-soft);color:var(--bad)}
+.table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.table th,.table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.table th{font:500 .75rem var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.table tr.me td{background:var(--accent-soft);font-weight:700}
+.table tr.pick{cursor:pointer}
+.table tr.pick:hover td{background:var(--accent-soft)}
+.table tr.sel td{background:var(--accent-soft)}
+.scroll-x{overflow-x:auto}
+.rank{font:800 1.1rem var(--f-display)}
+.rank.r1{color:var(--gold)}
+.audio{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note{background:var(--gold-soft);color:var(--fg);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+.rewards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.rw{display:flex;flex-direction:column;gap:8px}
+.rw .big{font:800 1.9rem var(--f-display);color:var(--gold)}
+.rw.claimed{opacity:.75}
+.bigcoins{font:800 3.4rem var(--f-display);color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+.bar-track{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar-fill{height:100%;background:var(--gold);width:0}
+.miles{display:flex;gap:10px;flex-wrap:wrap}
+.mile{padding:6px 12px;border-radius:999px;border:1px dashed var(--line);color:var(--muted);font-weight:600;font-size:.9rem}
+.mile.on{border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold)}
+details.panel>summary{cursor:pointer;font:700 1.1rem var(--f-display)}
+footer{margin-top:40px;color:var(--muted);font-size:.88rem;text-align:center}
+@media (max-width:760px){
+  .hero,.runner,.result-head{grid-template-columns:1fr}
+  .passage{max-height:none}
+  .brand{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
+<header class="bar"><div class="wrap">
+  <a class="brand" href="#home" aria-label="Polaris Prep home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--accent)"/><path d="M16 5l2.6 8.4H27l-6.8 5 2.6 8.4L16 21.8 9.2 26.8l2.6-8.4L5 13.4h8.4z" fill="var(--accent-fg)"/></svg>
+    Polaris Prep
+  </a>
+  <nav id="nav" aria-label="Main">
+    <a href="#home" data-r="home">Home</a>
+    <a href="#tests" data-r="tests">Tests</a>
+    <a href="#rewards" data-r="rewards">Rewards</a>
+    <a href="#leaderboard" data-r="leaderboard">Leaderboard</a>
+    <a href="#results" data-r="results">My results</a>
+    <a href="#teacher" data-r="teacher">Teacher</a>
+  </nav>
+  <div id="who"></div>
+</div></header>
+
+<main class="wrap"><section class="view" id="view" aria-live="polite"></section>
+<footer>Polaris Prep · practice Reading, Listening, Writing and Speaking for IELTS and Multilevel.</footer></main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- constants ---------- */
+var STUDENT_PW='c1 ol', TEACHER_PW='Alimov_70', COIN=5;
+var SECS=['Reading','Listening','Writing','Speaking','Mock test','IELTS'];
+
+/* ---------- storage ---------- */
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var mem={custom:null,teacher:false};
+function getCustom(){if(mem.custom===null)mem.custom=load('pp_custom',[]);return mem.custom}
+
+/* ---------- content ---------- */
+var TFNG=['True','False','Not given'];
+var BASE=[
+{id:'ielts-r1',exam:'IELTS',sec:'Reading',type:'quiz',title:'The Return of the Urban Beehive',mins:12,
+ text:['Ten years ago, keeping bees on a city rooftop was a curiosity. Today, several thousand hives sit above offices, hotels and apartment blocks in major cities, and many of them out-produce hives in the countryside.','Urban beekeepers point to the variety of plants within a short flight: parks, balcony gardens, street trees and railway embankments flower at different times, so a colony rarely runs short of nectar between April and September. Rural bees, by contrast, often face miles of a single crop that blooms for three weeks and then leaves the landscape bare.','Not everyone is convinced. Ecologists warn that wild pollinators, which are far more numerous than honeybees, may be crowded out when too many hives compete for the same flowers. A recent survey in one capital found that wild bee visits to certain plants fell after new hives were installed nearby.','Supporters answer that the real gain is public interest rather than honey. Residents who watch a hive come to care about planting, and several cities have since banned pesticides in public parks.'],
+ qs:[
+ {t:'mcq',q:'Why can city bees find food over a longer season than rural bees?',o:['Cities are warmer in winter','Different plants flower at different times nearby','City flowers produce more nectar','Beekeepers feed them sugar'],a:1},
+ {t:'mcq',q:'What do ecologists worry about?',o:['Honey quality','Hives falling off roofs','Wild pollinators losing out to honeybees','Bees stinging residents'],a:2},
+ {t:'fill',q:'Rural bees often face miles of a single ____ that blooms for only three weeks.',a:['crop']},
+ {t:'mcq',q:'According to supporters, the main benefit of urban hives is:',o:['Higher honey profits','Growing public interest in nature','Cheaper rooftop rent','Fewer wild bees'],a:1},
+ {t:'fill',q:'Several cities have banned ____ in public parks.',a:['pesticides','pesticide']}]},
+{id:'ielts-l1',exam:'IELTS',sec:'Listening',type:'quiz',title:'Joining the City Library',mins:8,
+ text:['Receptionist: Good morning, City Library, how can I help?','Caller: Hi, I would like to join the library. Do I need to bring anything?','Receptionist: Yes, just one document showing your address, such as a utility bill. Membership is free for residents, but there is a five pound charge for visitors.','Caller: I live in Hartley Road, so that should be fine. What are the opening hours?','Receptionist: We are open from nine until seven on weekdays, and from ten until four on Saturdays. We are closed on Sundays.','Caller: And how many books can I borrow at once?','Receptionist: Up to eight books, for three weeks. Films and music can be borrowed for one week only.','Caller: Great, I will come on Saturday morning then.'],
+ qs:[
+ {t:'mcq',q:'What must the caller bring to join?',o:['A passport','A document showing address','A photograph','Five pounds'],a:1},
+ {t:'fill',q:'The caller lives on ____ Road.',a:['hartley']},
+ {t:'mcq',q:'What time does the library close on Saturdays?',o:['Two o\'clock','Four o\'clock','Seven o\'clock','Nine o\'clock'],a:1},
+ {t:'fill',q:'Members can borrow up to ____ books at once.',a:['eight','8']},
+ {t:'mcq',q:'How long can films be borrowed?',o:['One week','Two weeks','Three weeks','One month'],a:0}]},
+{id:'ml-r1',exam:'Multilevel',sec:'Reading',type:'quiz',title:'A Letter About the Community Garden',mins:10,
+ text:['Dear neighbours,','Since March, the empty lot behind Green Street School has become our community garden. Thirty families now share twelve raised beds, and every Saturday morning we meet to water, weed and plant together.','Last month we grew enough tomatoes and cucumbers to sell at the market, and the money bought a new tool shed. We still need volunteers to help build a fence before the winter, and anyone who can bring tools is especially welcome.','Children are very welcome too. The school has offered to run a short science lesson in the garden each month, starting in November.','Please write to me if you would like to join.','Kind regards, Malika Yusupova'],
+ qs:[
+ {t:'mcq',q:'Where is the community garden?',o:['Beside the market','Behind a school','Next to a library','On a roof'],a:1},
+ {t:'mcq',q:'How often do the members meet?',o:['Every day','Every Saturday','Once a month','Every winter'],a:1},
+ {t:'fill',q:'The money from selling vegetables bought a new ____.',a:['shed','tool shed']},
+ {t:'mcq',q:'What is needed before winter?',o:['More seeds','A fence','A new teacher','A water tank'],a:1},
+ {t:'mcq',q:'When will the monthly science lessons begin?',o:['March','September','October','November'],a:3}]},
+{id:'ml-l1',exam:'Multilevel',sec:'Listening',type:'quiz',title:'Train Announcement at Tashkent Station',mins:6,
+ text:['Attention please. The 14:20 high-speed train to Samarkand is delayed by twenty-five minutes because of a signal fault near the city.','The new departure time is 14:45 from platform four. Passengers with tickets for carriage six and seven should note that these two carriages are at the front of the train today.','The station cafe on platform two is open until six o\'clock, and free water is available at the information desk.','We apologise for the delay and thank you for your patience.'],
+ qs:[
+ {t:'mcq',q:'Where is the train going?',o:['Bukhara','Samarkand','Navoi','Fergana'],a:1},
+ {t:'fill',q:'The train is delayed by ____ minutes.',a:['twenty-five','twenty five','25']},
+ {t:'mcq',q:'Which platform does the train leave from?',o:['Platform two','Platform three','Platform four','Platform six'],a:2},
+ {t:'mcq',q:'What caused the delay?',o:['Bad weather','A signal fault','A strike','A late driver'],a:1},
+ {t:'fill',q:'Free ____ is available at the information desk.',a:['water']}]},
+{id:'ielts-w1',exam:'IELTS',sec:'Writing',type:'writing',title:'Task 2: Working from home',mins:40,minWords:150,
+ text:['Some people believe that working from home is better for employees and companies. Others think that people work better in an office.','Discuss both views and give your own opinion. Give reasons for your answer and include relevant examples.','Write at least 150 words for this practice (the real test asks for 250).']},
+{id:'ielts-s1',exam:'IELTS',sec:'Speaking',type:'speaking',title:'Part 2: A teacher who helped you',mins:3,prep:60,talk:120,
+ text:['Describe a teacher who has helped you in your studies.','You should say: who this person is, what they taught you, how they helped you, and explain why you remember them.','You have one minute to prepare, then speak for up to two minutes.']},
+{id:'mock-1',exam:'Multilevel',sec:'Mock test',type:'quiz',title:'Mini mock: Reading and grammar',mins:15,
+ text:['Samarkand has been a stop on trade routes for more than two thousand years. Merchants brought silk, spices and paper, and they also carried ideas. Today the city welcomes visitors from all over the world, and most of them come in spring or autumn, when the weather is mild.','The old city is best explored on foot. Many of the main sights, such as the Registan, are within twenty minutes of each other, and guides recommend starting early to avoid the midday heat.'],
+ qs:[
+ {t:'mcq',q:'What did merchants bring besides goods?',o:['Money','Ideas','Animals','Tools'],a:1},
+ {t:'mcq',q:'When do most visitors come?',o:['Summer','Winter','Spring or autumn','All year equally'],a:2},
+ {t:'fill',q:'Guides recommend starting ____ to avoid the heat.',a:['early']},
+ {t:'mcq',q:'Choose the correct word: If I ____ more time, I would visit the museum.',o:['have','had','will have','am having'],a:1},
+ {t:'mcq',q:'Choose the correct word: She has lived here ____ 2019.',o:['for','since','during','from'],a:1},
+ {t:'fill',q:'Complete the sentence: He is interested ____ history. (one word)',a:['in']}]},
+{id:'ielts-tf1',exam:'IELTS',sec:'IELTS',type:'quiz',title:'True, False, Not given: Sleep and study',mins:10,
+ text:['Researchers at several universities have found that students who sleep at least seven hours before an exam score higher than those who stay up late to revise. The effect was strongest in subjects that rely on memory, such as languages and biology.','However, the studies did not measure how much time students had spent studying earlier in the term. Some experts therefore argue that well-organised students may simply be the ones who sleep more.','Most universities now offer advice on sleep, and a few have moved first-morning lectures to a later hour.'],
+ qs:[
+ {t:'mcq',q:'Students who sleep seven hours before an exam score higher.',o:TFNG,a:0},
+ {t:'mcq',q:'The effect was strongest in mathematics.',o:TFNG,a:1},
+ {t:'mcq',q:'The studies measured earlier study time during the term.',o:TFNG,a:1},
+ {t:'mcq',q:'Every university has moved morning lectures to a later hour.',o:TFNG,a:1},
+ {t:'mcq',q:'Students who sleep more also drink less coffee.',o:TFNG,a:2}]}
+];
+var SAMPLE=[['Aziza K.',30,88],['Bobur T.',25,81],['Dilnoza R.',15,74]];
+
+function allTests(){return BASE.concat(getCustom())}
+function findTest(id){var t=allTests();for(var i=0;i<t.length;i++)if(t[i].id===id)return t[i];return null}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function norm(s){return String(s||'').trim().toLowerCase().replace(/\s+/g,' ')}
+function words(s){var m=String(s||'').trim().match(/\S+/g);return m?m.length:0}
+function fmtTime(sec){sec=Math.round(sec||0);var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60);return h>0?h+' h '+m+' min':m+' min'}
+function isQuiz(t){return t.type==='quiz'}
+
+/* ---------- scoring ---------- */
+function band(raw,total){
+  var s=Math.round(raw/total*40);
+  var m=[[39,9],[37,8.5],[35,8],[33,7.5],[30,7],[27,6.5],[23,6],[19,5.5],[15,5],[13,4.5],[10,4],[8,3.5],[6,3],[4,2.5]];
+  for(var i=0;i<m.length;i++)if(s>=m[i][0])return m[i][1];
+  return 2;
+}
+function level(p){return p>=85?'C1':p>=70?'B2':p>=50?'B1':p>=30?'A2':'A1'}
+function grade(t,raw,total){return t.exam==='IELTS'?'Band '+band(raw,total).toFixed(1):'Level '+level(raw/total*100)}
+
+/* ---------- student state ---------- */
+var S=null, sid='', DB=null, ALL=null, currentSec=null;
+function slug(n){var s=norm(n).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
+  if(!s){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;s='s'+h.toString(36)}return s}
+function blank(name){return {name:name,seconds:0,secBy:{},claimed:{},done:{},cnt:{},coins:0,attempts:[],updated:0}}
+function coinsOf(st){var n=0;SECS.forEach(function(k){if(st.claimed&&st.claimed[k])n++});return n*COIN}
+function mergeStu(a,b){
+  var r=blank(b.name||a.name);
+  r.seconds=Math.max(a.seconds||0,b.seconds||0);
+  SECS.forEach(function(k){
+    r.secBy[k]=Math.max((a.secBy||{})[k]||0,(b.secBy||{})[k]||0);
+    r.claimed[k]=!!((a.claimed||{})[k]||(b.claimed||{})[k]);
+    var da=(a.done||{})[k],db=(b.done||{})[k];
+    if(da!=null||db!=null)r.done[k]=Math.max(da==null?-1:da,db==null?-1:db);
+    r.cnt[k]=Math.max((a.cnt||{})[k]||0,(b.cnt||{})[k]||0)});
+  var seen={},all=(a.attempts||[]).concat(b.attempts||[]);
+  all.forEach(function(x){var key=x.date+x.test;if(!seen[key]){seen[key]=1;r.attempts.push(x)}});
+  r.attempts.sort(function(x,y){return x.date-y.date});r.attempts=r.attempts.slice(-80);
+  r.coins=coinsOf(r);r.updated=Date.now();return r;
+}
+var flushT=null,writing=false;
+function persist(now){
+  if(!S)return;
+  S.coins=coinsOf(S);S.updated=Date.now();
+  save('pp_stu_'+sid,S);save('pp_session',S.name);
+  if(DB&&!flushT)flushT=setTimeout(push,now?300:20000);
+}
+function push(){
+  flushT=null;
+  if(!DB||!S)return;
+  if(writing){flushT=setTimeout(push,2000);return}
+  writing=true;
+  DB.collection('students').doc(sid).set(JSON.parse(JSON.stringify(S))).then(function(){writing=false},function(){writing=false});
+}
+function pullRemote(){
+  if(!DB||!S)return;
+  DB.collection('students').doc(sid).get().then(function(snap){
+    if(!snap.exists)return persist(true);
+    S=mergeStu(S,snap.data());persist(true);renderWho();
+  },function(){});
+}
+function startSession(name){
+  sid=slug(name);
+  var local=load('pp_stu_'+sid,null);
+  S=local?mergeStu(blank(name),local):blank(name);
+  S.name=name;persist(true);pullRemote();renderWho();
+}
+function logout(){push();S=null;sid='';try{localStorage.removeItem('pp_session')}catch(e){}renderWho();location.hash='#home';route()}
+
+/* time tracking: counts seconds while the page is visible and a student is signed in */
+setInterval(function(){
+  if(!S||document.visibilityState!=='visible')return;
+  S.seconds++;if(currentSec)S.secBy[currentSec]=(S.secBy[currentSec]||0)+1;
+  if(S.seconds%15===0)persist(false);
+},1000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&S){persist(true)}});
+window.addEventListener('pagehide',function(){if(S)persist(true)});
+
+/* ---------- db (shared, optional) ---------- */
+(function(){
+  var cl=window.claude;
+  if(!cl||!cl.use)return;
+  cl.use('db').then(function(d){
+    if(!d)return;
+    DB=d;
+    try{DB.collection('students').onSnapshot(function(snap){
+      ALL=snap.docs.map(function(x){return x.data()});
+      if(document.getElementById('tdata'))renderTData();
+      if(location.hash==='#leaderboard')leaderboard();
+    },function(){});}catch(e){}
+    if(S)pullRemote();
+  }).catch(function(){});
+})();
+
+/* ---------- router ---------- */
+var view=document.getElementById('view'),timerId=null;
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(e){}}
+function renderWho(){
+  var w=document.getElementById('who');
+  w.innerHTML=S?'<span class="coins" title="Your coins">'+S.coins+' coins</span><span class="hint">'+esc(S.name)+'</span><button class="btn ghost small" id="lo">Log out</button>':'';
+  var b=document.getElementById('lo');if(b)b.onclick=logout;
+}
+function route(){
+  stopTimer();currentSec=null;
+  var h=(location.hash||'#home').slice(1)||'home';
+  var navKey=h.indexOf('test-')===0?'tests':h;
+  document.querySelectorAll('#nav a').forEach(function(a){
+    if(a.dataset.r===navKey)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(h==='teacher')return teacher();
+  if(!S)return loginView();
+  if(h==='tests')return tests();
+  if(h==='rewards')return rewards();
+  if(h==='leaderboard')return leaderboard();
+  if(h==='results')return results();
+  if(h.indexOf('test-')===0){var t=findTest(h.slice(5));if(t)return runner(t)}
+  home();
+}
+window.addEventListener('hashchange',function(){route();window.scrollTo(0,0)});
+
+/* ---------- login ---------- */
+function loginView(){
+  view.innerHTML='<div class="hero"><div><div class="kicker">IELTS · Multilevel</div><h1>Practice the test before the test.</h1><p class="lead">Timed Reading, Listening, Writing and Speaking practice. Earn coins for every section you try.</p></div>'+
+  '<div class="panel"><h2 style="margin-bottom:14px">Student login</h2>'+
+  '<div class="field"><label for="ln">Your name</label><input id="ln" maxlength="30" autocomplete="off" placeholder="e.g. Aziza Karimova"></div>'+
+  '<div class="field"><label for="lp">Password</label><input id="lp" type="password" autocomplete="off"></div>'+
+  '<p id="lerr" class="hint" style="color:var(--bad);margin-bottom:10px" hidden></p>'+
+  '<div class="row spread"><button class="btn" id="lgo">Log in</button><a href="#teacher">Teacher login</a></div></div></div>';
+  var go=function(){
+    var n=document.getElementById('ln').value.trim().replace(/\s+/g,' '),p=document.getElementById('lp').value,e=document.getElementById('lerr');
+    if(!n){e.textContent='Type your name.';e.hidden=false;return}
+    if(norm(p)!==STUDENT_PW){e.textContent='Wrong password. Ask your teacher.';e.hidden=false;return}
+    startSession(n);location.hash='#home';route();
+  };
+  document.getElementById('lgo').onclick=go;
+  document.getElementById('lp').onkeydown=function(e){if(e.key==='Enter')go()};
+}
+
+/* ---------- views ---------- */
+function home(){
+  var total=allTests().length,done=SECS.filter(function(k){return S.done[k]!=null}).length;
+  view.innerHTML=
+  '<div class="hero"><div><div class="kicker">Welcome, '+esc(S.name)+'</div><h1>Practice the test before the test.</h1>'+
+  '<p class="lead">Try one test from each section to earn '+COIN+' coins per section. Your teacher can see your time and results.</p>'+
+  '<div class="cta"><a class="btn" href="#tests">Start practising</a><a class="btn ghost" href="#rewards">My rewards</a></div></div>'+
+  '<div class="panel stats"><div><b>'+total+'</b><span>Practice tests</span></div><div><b>'+done+'/'+SECS.length+'</b><span>Sections tried</span></div><div><b>'+S.coins+'</b><span>Coins</span></div></div></div>'+
+  '<div><h2 style="margin-bottom:14px">Sections</h2><div class="cards">'+SECS.map(function(k){
+    var n=allTests().filter(function(t){return t.sec===k}).length;
+    return '<div class="panel card"><div class="meta"><span class="tag'+(S.done[k]!=null?' good':'')+'">'+(S.done[k]!=null?'Done':'To do')+'</span></div><h3>'+k+'</h3><p>'+n+' test'+(n===1?'':'s')+' · +'+COIN+' coins for your first one</p><div><button class="btn small" data-sec="'+k+'">Open '+k+'</button></div></div>'}).join('')+'</div></div>';
+  view.querySelectorAll('[data-sec]').forEach(function(b){b.onclick=function(){fSec=b.dataset.sec;location.hash='#tests'}});
+}
+var fSec='All',fExam='All';
+function tests(){
+  function draw(){
+    var list=allTests().filter(function(t){return (fExam==='All'||t.exam===fExam)&&(fSec==='All'||t.sec===fSec)});
+    view.innerHTML='<div><h2>Practice tests</h2><p class="hint">Pick a paper. Reading and Listening are marked automatically. Writing and Speaking count as done when you finish them.</p></div>'+
+    '<div class="filters" role="group" aria-label="Exam">'+['All','IELTS','Multilevel'].map(function(x){return '<button class="chip" data-e="'+x+'" aria-pressed="'+(fExam===x)+'">'+x+'</button>'}).join('')+'</div>'+
+    '<div class="filters" role="group" aria-label="Section">'+['All'].concat(SECS).map(function(x){return '<button class="chip" data-s="'+x+'" aria-pressed="'+(fSec===x)+'">'+x+'</button>'}).join('')+'</div>'+
+    '<div class="cards">'+(list.length?list.map(function(t){
+      var d=S.attempts.some(function(a){return a.test===t.id});
+      return '<div class="panel card"><div class="meta"><span class="tag">'+t.exam+'</span><span class="tag gold">'+esc(t.sec)+'</span>'+(d?'<span class="tag good">Done</span>':'')+'</div>'+
+      '<h3>'+esc(t.title)+'</h3><p>'+(isQuiz(t)?t.qs.length+' questions':t.type==='writing'?'Essay, '+(t.minWords||100)+'+ words':'Speak aloud')+' · '+t.mins+' minutes</p><div><a class="btn small" href="#test-'+esc(t.id)+'">'+(d?'Try again':'Start')+'</a></div></div>'}).join(''):'<p class="hint">No tests match these filters.</p>')+'</div>';
+    view.querySelectorAll('[data-e]').forEach(function(b){b.onclick=function(){fExam=b.dataset.e;draw()}});
+    view.querySelectorAll('[data-s]').forEach(function(b){b.onclick=function(){fSec=b.dataset.s;draw()}});
+  }
+  draw();
+}
+
+/* ---------- runner ---------- */
+function paras(t){return t.text.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')}
+function head(t,extra){return '<div class="runner-top"><div><div class="row"><span class="tag">'+t.exam+'</span><span class="tag gold">'+esc(t.sec)+'</span></div><h2 style="margin-top:8px">'+esc(t.title)+'</h2></div>'+(extra||'')+'</div>'}
+function startCountdown(secs,el,onEnd){
+  function tick(){var m=Math.floor(secs/60),s=secs%60;el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;el.className='timer'+(secs<=60?' low':'')}
+  tick();
+  if(timerId)clearInterval(timerId);
+  timerId=setInterval(function(){secs--;tick();if(secs<=0){clearInterval(timerId);timerId=null;onEnd()}},1000);
+}
+function runner(t){
+  currentSec=t.sec;
+  if(t.type==='writing')return runWriting(t);
+  if(t.type==='speaking')return runSpeaking(t);
+  var listening=t.sec==='Listening';
+  var qhtml=t.qs.map(function(q,i){
+    var body=q.t==='mcq'?q.o.map(function(o,j){return '<label class="opt"><input type="radio" name="q'+i+'" value="'+j+'"><span>'+esc(o)+'</span></label>'}).join(''):
+      '<input type="text" id="q'+i+'" autocomplete="off" aria-label="Answer to question '+(i+1)+'" placeholder="Type your answer">';
+    return '<div class="q"><div class="stem">'+(i+1)+'. '+esc(q.q)+'</div>'+body+'</div>'}).join('');
+  var left=listening?
+    '<div class="panel pane"><h3>Audio</h3><div class="audio" style="margin:12px 0"><button class="btn small" id="play">Play audio</button><button class="btn small ghost" id="stop" hidden>Stop</button></div>'+
+    '<p class="hint">Listen carefully, then answer. The recording is read aloud by your device. You can play it up to twice.</p><div id="plays" class="hint" style="margin-top:8px"></div>'+
+    '<div id="tfall" class="note" style="margin-top:12px" hidden>Audio is not supported on this device. Read the transcript instead.<div class="passage" style="margin-top:8px">'+paras(t)+'</div></div></div>':
+    '<div class="panel pane passage" tabindex="0" aria-label="Reading passage"><h3 style="margin-bottom:12px">'+esc(t.title)+'</h3>'+paras(t)+'</div>';
+  view.innerHTML=head(t,'<div class="timer" id="timer" role="timer">--:--</div>')+
+  '<div class="runner">'+left+'<div class="panel pane">'+qhtml+'<div class="row spread" style="margin-top:14px"><a class="btn ghost" href="#tests">Leave test</a><button class="btn" id="submit">Submit answers</button></div></div></div>';
+  startCountdown(t.mins*60,document.getElementById('timer'),finish);
+  if(listening){
+    var plays=0,playBtn=document.getElementById('play'),stopBtn=document.getElementById('stop'),pl=document.getElementById('plays');
+    var ok=!!(window.speechSynthesis&&window.SpeechSynthesisUtterance);
+    if(!ok){document.getElementById('tfall').hidden=false;playBtn.disabled=true}
+    playBtn.onclick=function(){
+      if(plays>=2||!ok)return;plays++;pl.textContent='Played '+plays+' of 2';
+      var u=new SpeechSynthesisUtterance(t.text.join(' '));u.lang='en-GB';u.rate=.92;
+      u.onend=function(){stopBtn.hidden=true;playBtn.disabled=plays>=2};
+      u.onerror=function(){stopBtn.hidden=true;document.getElementById('tfall').hidden=false};
+      try{window.speechSynthesis.cancel();window.speechSynthesis.speak(u);stopBtn.hidden=false;playBtn.disabled=true}catch(e){document.getElementById('tfall').hidden=false}
+    };
+    stopBtn.onclick=function(){try{window.speechSynthesis.cancel()}catch(e){}stopBtn.hidden=true;playBtn.disabled=plays>=2};
+  }
+  var finished=false;
+  function finish(){
+    if(finished)return;finished=true;stopTimer();
+    var raw=0,given=[];
+    t.qs.forEach(function(q,i){
+      var g,right=false;
+      if(q.t==='mcq'){var c=view.querySelector('input[name="q'+i+'"]:checked');g=c?+c.value:-1;right=g===q.a}
+      else{g=norm(document.getElementById('q'+i).value);right=q.a.some(function(a){return norm(a)===g})}
+      if(right)raw++;given.push(g)});
+    var total=t.qs.length,pct=raw/total*100;
+    var rec={test:t.id,title:t.title,exam:t.exam,sec:t.sec,raw:raw,total:total,pct:pct,grade:grade(t,raw,total),date:Date.now()};
+    record(rec,pct);
+    showResult(t,rec,given);
+  }
+  document.getElementById('submit').onclick=finish;
+}
+function record(rec,score){
+  S.attempts.push(rec);S.attempts=S.attempts.slice(-80);
+  var k=rec.sec;
+  S.cnt[k]=(S.cnt[k]||0)+1;
+  S.done[k]=Math.max(S.done[k]==null?-1:S.done[k],score);
+  persist(true);
+}
+function showResult(t,rec,given){
+  var rev=t.qs.map(function(q,i){
+    var g=given[i],right,yours,correct;
+    if(q.t==='mcq'){right=g===q.a;yours=g>=0?q.o[g]:'No answer';correct=q.o[q.a]}
+    else{right=q.a.some(function(a){return norm(a)===g});yours=g||'No answer';correct=q.a[0]}
+    return '<div class="q '+(right?'ok':'no')+'"><div class="stem">'+(i+1)+'. '+esc(q.q)+'</div><div class="ans '+(right?'good':'bad')+'">Your answer: '+esc(yours)+'</div>'+(right?'':'<div class="ans good">Correct answer: '+esc(correct)+'</div>')+'</div>'}).join('');
+  view.innerHTML='<div class="panel result-head"><div class="score">'+rec.raw+'/'+rec.total+'</div><div><div class="kicker">'+t.exam+' · '+esc(t.sec)+'</div><h2>'+esc(rec.grade)+'</h2><p class="hint" style="margin-top:6px">'+Math.round(rec.pct)+'% correct on “'+esc(t.title)+'”.</p></div></div>'+
+  rewardNote(t.sec)+
+  '<div class="row"><a class="btn" href="#test-'+esc(t.id)+'">Retake</a><a class="btn ghost" href="#tests">More tests</a></div>'+
+  '<div class="panel review"><h3 style="margin-bottom:6px">Answer review</h3>'+rev+'</div>';
+  window.scrollTo(0,0);
+}
+function rewardNote(sec){
+  if(S.claimed[sec])return '';
+  return '<div class="note">You finished a '+esc(sec)+' test. <a href="#rewards">Claim your '+COIN+' coins</a> on the Rewards page.</div>';
+}
+function runWriting(t){
+  var min=t.minWords||100;
+  view.innerHTML=head(t,'<div class="timer" id="timer" role="timer">--:--</div>')+
+  '<div class="runner"><div class="panel pane passage" tabindex="0"><h3 style="margin-bottom:12px">Task</h3>'+paras(t)+'</div>'+
+  '<div class="panel pane"><div class="field"><label for="essay">Your answer</label><textarea id="essay" style="min-height:300px" placeholder="Start writing here"></textarea></div>'+
+  '<div class="row spread"><span class="hint" id="wc">0 / '+min+' words</span><div class="row"><a class="btn ghost" href="#tests">Leave</a><button class="btn" id="wsub" disabled>Submit writing</button></div></div></div></div>';
+  var ta=document.getElementById('essay'),btn=document.getElementById('wsub'),wc=document.getElementById('wc'),done=false;
+  ta.oninput=function(){var n=words(ta.value);wc.textContent=n+' / '+min+' words';btn.disabled=n<min};
+  function submit(){
+    if(done)return;var n=words(ta.value);if(n<min)return;done=true;stopTimer();
+    var rec={test:t.id,title:t.title,exam:t.exam,sec:t.sec,raw:n,total:min,pct:100,grade:'Submitted · '+n+' words',words:n,date:Date.now()};
+    record(rec,100);
+    view.innerHTML='<div class="panel result-head"><div class="score">'+n+'</div><div><div class="kicker">'+t.exam+' · Writing</div><h2>Writing submitted</h2><p class="hint" style="margin-top:6px">'+n+' words on “'+esc(t.title)+'”. Your teacher can see that you completed it.</p></div></div>'+rewardNote(t.sec)+'<div class="row"><a class="btn" href="#tests">More tests</a></div>';
+  }
+  btn.onclick=submit;
+  startCountdown(t.mins*60,document.getElementById('timer'),function(){if(words(ta.value)>=min)submit();else wc.textContent='Time is up. Reach '+min+' words to submit.'});
+}
+function runSpeaking(t){
+  var prep=t.prep||60,talk=t.talk||120,phase=0,talked=0,talkTick=null;
+  view.innerHTML=head(t,'<div class="timer" id="timer" role="timer">'+'--:--'+'</div>')+
+  '<div class="panel"><h3 style="margin-bottom:12px">Cue card</h3><div class="passage">'+paras(t)+'</div></div>'+
+  '<div class="panel"><p id="sp" class="hint" style="margin-bottom:12px">Press start when you are ready. You have '+Math.round(prep/60)+' minute to prepare, then speak aloud for up to '+Math.round(talk/60)+' minutes. Nothing is recorded.</p>'+
+  '<div class="row"><button class="btn" id="sgo">Start preparation</button><button class="btn" id="sfin" hidden disabled>Finish speaking</button><a class="btn ghost" href="#tests">Leave</a></div></div>';
+  var el=document.getElementById('timer'),sp=document.getElementById('sp'),go=document.getElementById('sgo'),fin=document.getElementById('sfin');
+  el.textContent=Math.floor(prep/60)+':00';
+  function speak(){
+    phase=2;go.hidden=true;fin.hidden=false;sp.textContent='Speak now. Finish when you are done (available after 30 seconds).';
+    talkTick=setInterval(function(){talked++;if(talked>=30)fin.disabled=false},1000);
+    startCountdown(talk,el,finishSpeaking);
+  }
+  function finishSpeaking(){
+    if(phase===3)return;phase=3;stopTimer();if(talkTick)clearInterval(talkTick);
+    var rec={test:t.id,title:t.title,exam:t.exam,sec:t.sec,raw:1,total:1,pct:100,grade:'Completed · '+Math.round(talked/6)/10+' min spoken',date:Date.now()};
+    record(rec,100);
+    view.innerHTML='<div class="panel result-head"><div class="score">Done</div><div><div class="kicker">'+t.exam+' · Speaking</div><h2>Speaking completed</h2><p class="hint" style="margin-top:6px">You spoke for about '+Math.max(1,Math.round(talked/6)/10)+' minutes on “'+esc(t.title)+'”.</p></div></div>'+rewardNote(t.sec)+'<div class="row"><a class="btn" href="#tests">More tests</a></div>';
+  }
+  go.onclick=function(){
+    if(phase===0){phase=1;go.textContent='Skip to speaking';sp.textContent='Prepare your ideas. Speaking starts automatically when the timer ends.';startCountdown(prep,el,speak)}
+    else if(phase===1){stopTimer();speak()}
+  };
+  fin.onclick=finishSpeaking;
+}
+
+/* ---------- my results, rewards, leaderboard ---------- */
+function results(){
+  var rs=S.attempts.slice().reverse();
+  view.innerHTML='<div><h2>My results</h2><p class="hint">Total practice time: '+fmtTime(S.seconds)+'.</p></div>'+
+  (rs.length?'<div class="panel scroll-x"><table class="table"><thead><tr><th>Date</th><th>Test</th><th>Section</th><th>Result</th></tr></thead><tbody>'+
+  rs.map(function(r){return '<tr><td>'+new Date(r.date).toLocaleDateString()+'</td><td>'+esc(r.title)+'</td><td>'+esc(r.sec)+'</td><td>'+esc(r.grade)+'</td></tr>'}).join('')+'</tbody></table></div>':
+  '<div class="panel"><p>You have not finished a test yet.</p><p style="margin-top:12px"><a class="btn" href="#tests">Take your first test</a></p></div>');
+}
+function rewards(){
+  var max=SECS.length*COIN;
+  var mil=[[15,'Bronze star'],[25,'Silver star'],[30,'Gold star']];
+  view.innerHTML='<div><h2>Rewards</h2><p class="hint">Finish any one test in a section to earn '+COIN+' coins. Claim them here.</p></div>'+
+  '<div class="panel"><div class="row spread"><div><div class="hint">Your coins</div><div class="bigcoins">'+S.coins+'</div></div><div style="flex:1;min-width:200px"><div class="hint" style="margin-bottom:6px">'+S.coins+' of '+max+' coins</div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(S.coins/max*100)+'%"></div></div></div></div>'+
+  '<div class="miles" style="margin-top:16px">'+mil.map(function(m){return '<span class="mile'+(S.coins>=m[0]?' on':'')+'">'+m[1]+' · '+m[0]+' coins</span>'}).join('')+'</div></div>'+
+  '<div class="rewards">'+SECS.map(function(k){
+    var done=S.done[k]!=null,cl=!!S.claimed[k];
+    return '<div class="panel rw'+(cl?' claimed':'')+'"><div class="row spread"><h3>'+k+'</h3><span class="tag'+(cl?' good':done?' gold':'')+'">'+(cl?'Claimed':done?'Ready':'Locked')+'</span></div><div class="big">+'+COIN+'</div>'+
+    (cl?'<p class="hint">Coins added to your balance.</p>':done?'<button class="btn small" data-claim="'+k+'">Claim '+COIN+' coins</button>':'<p class="hint">Finish one '+k+' test to unlock.</p><a class="btn ghost small" href="#tests" data-go="'+k+'">Go to '+k+'</a>')+'</div>'}).join('')+'</div>';
+  view.querySelectorAll('[data-claim]').forEach(function(b){b.onclick=function(){S.claimed[b.dataset.claim]=true;persist(true);renderWho();rewards()}});
+  view.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){fSec=b.dataset.go}});
+}
+function avgBest(st){var v=[];SECS.forEach(function(k){if(st.done&&st.done[k]!=null)v.push(st.done[k])});return v.length?v.reduce(function(a,b){return a+b},0)/v.length:0}
+function localStudents(){
+  var out=[];
+  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('pp_stu_')===0){try{out.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}}catch(e){}
+  return out;
+}
+function students(){
+  var map={};
+  (ALL||[]).forEach(function(s){map[slug(s.name)]=s});
+  localStudents().forEach(function(s){var k=slug(s.name);map[k]=map[k]?mergeStu(map[k],s):s});
+  return Object.keys(map).map(function(k){return map[k]});
+}
+function leaderboard(){
+  var rows=students().map(function(s){return {name:s.name,coins:coinsOf(s),avg:avgBest(s),mine:S&&slug(s.name)===sid}});
+  if(rows.length<3)SAMPLE.forEach(function(x){rows.push({name:x[0],coins:x[1],avg:x[2],sample:true})});
+  rows.sort(function(a,b){return b.coins-a.coins||b.avg-a.avg});
+  view.innerHTML='<div><h2>Leaderboard</h2><p class="hint">Ranked by coins, then average best score. Rows tagged “example” are sample entries.</p></div>'+
+  '<div class="panel scroll-x"><table class="table"><thead><tr><th>Rank</th><th>Student</th><th>Coins</th><th>Avg best</th></tr></thead><tbody>'+
+  rows.map(function(r,i){return '<tr class="'+(r.mine?'me':'')+'"><td><span class="rank'+(i===0?' r1':'')+'">'+(i+1)+'</span></td><td>'+esc(r.name)+(r.sample?' <span class="tag">example</span>':'')+'</td><td>'+r.coins+'</td><td>'+Math.round(r.avg)+'%</td></tr>'}).join('')+'</tbody></table></div>';
+}
+
+/* ---------- teacher ---------- */
+var selSid=null;
+function teacher(){
+  if(!mem.teacher){
+    view.innerHTML='<div><h2>Teacher login</h2><p class="hint">Sign in to see student time, results and rewards.</p></div><div class="panel" style="max-width:420px"><div class="field"><label for="pw">Teacher password</label><input id="pw" type="password" autocomplete="off"></div><div class="row spread"><button class="btn" id="login">Sign in</button><a href="#home">Student login</a></div><p id="err" class="hint" style="margin-top:10px;color:var(--bad)" hidden>Wrong password.</p></div>';
+    var go=function(){if(document.getElementById('pw').value===TEACHER_PW){mem.teacher=true;teacher()}else document.getElementById('err').hidden=false};
+    document.getElementById('login').onclick=go;
+    document.getElementById('pw').onkeydown=function(e){if(e.key==='Enter')go()};
+    return;
+  }
+  var c=getCustom();
+  view.innerHTML='<div class="row spread"><div><h2>Teacher panel</h2><p class="hint" id="tsrc"></p></div><button class="btn ghost small" id="out">Sign out</button></div>'+
+  '<div id="tdata"></div>'+
+  '<details class="panel"><summary>Add a test</summary><div style="margin-top:14px">'+
+  '<div class="field"><label for="tt">Title</label><input id="tt" placeholder="e.g. Hotel booking call"></div>'+
+  '<div class="row"><div class="field" style="flex:1;min-width:140px"><label for="te">Exam</label><select id="te"><option>IELTS</option><option>Multilevel</option></select></div>'+
+  '<div class="field" style="flex:1;min-width:140px"><label for="ts">Section</label><select id="ts">'+SECS.map(function(k){return '<option>'+k+'</option>'}).join('')+'</select></div>'+
+  '<div class="field" style="flex:1;min-width:140px"><label for="tm">Minutes</label><input id="tm" type="number" min="1" max="90" value="10"></div></div>'+
+  '<div class="field"><label for="tx">Passage, transcript or task text</label><textarea id="tx" placeholder="Separate paragraphs with a blank line."></textarea></div>'+
+  '<div class="field"><label for="tq">Questions, one per line (not needed for Writing and Speaking)</label><textarea id="tq" placeholder="Multiple choice:  Question | Option A ; Option B ; Option C | 2\nGap fill:  Question with ____ | = answer ; other accepted answer"></textarea><span class="hint">For multiple choice, the last number is the position of the correct option (1 = first).</span></div>'+
+  '<p id="terr" class="hint" style="color:var(--bad);margin-bottom:10px" hidden></p><button class="btn" id="add">Publish test</button></div></details>'+
+  '<div class="panel"><h3 style="margin-bottom:10px">Tests you added ('+c.length+')</h3>'+(c.length?c.map(function(t,i){return '<div class="row spread q"><span><b>'+esc(t.title)+'</b> <span class="hint">'+t.exam+' · '+esc(t.sec)+'</span></span><button class="btn ghost small" data-del="'+i+'">Delete</button></div>'}).join(''):'<p class="hint">Nothing added yet. Tests you add appear in this browser.</p>')+'</div>';
+  renderTData();
+  document.getElementById('out').onclick=function(){mem.teacher=false;teacher()};
+  view.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){c.splice(+b.dataset.del,1);mem.custom=c;save('pp_custom',c);teacher()}});
+  document.getElementById('add').onclick=function(){
+    var err=document.getElementById('terr');
+    function bad(m){err.textContent=m;err.hidden=false}
+    var title=document.getElementById('tt').value.trim(),text=document.getElementById('tx').value.trim(),sec=document.getElementById('ts').value;
+    var lines=document.getElementById('tq').value.split('\n').map(function(l){return l.trim()}).filter(Boolean);
+    if(!title)return bad('Add a title.');
+    if(!text)return bad('Add the passage, transcript or task text.');
+    var base={id:'c'+Date.now().toString(36),exam:document.getElementById('te').value,sec:sec,title:title,mins:Math.max(1,+document.getElementById('tm').value||10),text:text.split(/\n\s*\n/).map(function(x){return x.trim()}).filter(Boolean)};
+    if(sec==='Writing'){base.type='writing';base.minWords=100}
+    else if(sec==='Speaking'){base.type='speaking';base.prep=60;base.talk=120}
+    else{
+      base.type='quiz';var qs=[];
+      for(var i=0;i<lines.length;i++){
+        var p=lines[i].split('|').map(function(x){return x.trim()});
+        if(p.length>=3&&/^\d+$/.test(p[2])){
+          var o=p[1].split(';').map(function(x){return x.trim()}).filter(Boolean),a=+p[2]-1;
+          if(o.length<2||a<0||a>=o.length)return bad('Line '+(i+1)+': check the options and the correct number.');
+          qs.push({t:'mcq',q:p[0],o:o,a:a});
+        }else if(p.length>=2&&p[1].charAt(0)==='='){
+          var ans=p[1].slice(1).split(';').map(function(x){return x.trim()}).filter(Boolean);
+          if(!ans.length)return bad('Line '+(i+1)+': add at least one accepted answer after "=".');
+          qs.push({t:'fill',q:p[0],a:ans});
+        }else return bad('Line '+(i+1)+' does not match either format.');
+      }
+      if(!qs.length)return bad('Add at least one question.');
+      base.qs=qs;
+    }
+    c.push(base);mem.custom=c;save('pp_custom',c);teacher();
+  };
+}
+function cell(st,k){
+  if(st.done&&st.done[k]!=null){
+    var n=(st.cnt||{})[k]||0;
+    return (k==='Writing'||k==='Speaking'?'✓':Math.round(st.done[k])+'%')+(n?' <span class="hint">('+n+')</span>':'');
+  }
+  return '<span class="hint">–</span>';
+}
+function renderTData(){
+  var box=document.getElementById('tdata');if(!box)return;
+  var src=document.getElementById('tsrc');
+  if(src)src.textContent=DB?'Live data from all students who logged in with a Claude account. Click a row for details.':'Shared data is not available in this view, so only students who used this browser are listed.';
+  var list=students().sort(function(a,b){return (b.seconds||0)-(a.seconds||0)});
+  var totalSec=list.reduce(function(a,s){return a+(s.seconds||0)},0);
+  var html='<div class="panel stats" style="margin-bottom:16px"><div><b>'+list.length+'</b><span>Students</span></div><div><b>'+fmtTime(totalSec)+'</b><span>Total practice time</span></div><div><b>'+list.reduce(function(a,s){return a+coinsOf(s)},0)+'</b><span>Coins earned</span></div></div>';
+  html+='<div class="panel scroll-x"><table class="table"><thead><tr><th>Student</th><th>Time</th><th>Coins</th>'+SECS.map(function(k){return '<th>'+k+'</th>'}).join('')+'</tr></thead><tbody>'+
+  (list.length?list.map(function(s){var k=slug(s.name);return '<tr class="pick'+(k===selSid?' sel':'')+'" data-sid="'+esc(k)+'" tabindex="0"><td><b>'+esc(s.name)+'</b></td><td>'+fmtTime(s.seconds)+'</td><td>'+coinsOf(s)+'</td>'+SECS.map(function(x){return '<td>'+cell(s,x)+'</td>'}).join('')+'</tr>'}).join(''):'<tr><td colspan="9" class="hint">No students yet. Students appear after they log in with the class password.</td></tr>')+'</tbody></table></div>'+
+  '<p class="hint" style="margin-top:8px">Cells show the best score in each section and, in brackets, how many attempts. A tick means Writing or Speaking was completed.</p>';
+  var sel=null;list.forEach(function(s){if(slug(s.name)===selSid)sel=s});
+  if(sel){
+    html+='<div class="panel" style="margin-top:16px"><h3 style="margin-bottom:10px">'+esc(sel.name)+'</h3><p class="hint" style="margin-bottom:10px">Time by section: '+SECS.map(function(k){return k+' '+fmtTime((sel.secBy||{})[k])}).join(' · ')+'</p>'+
+    '<div class="scroll-x"><table class="table"><thead><tr><th>Date</th><th>Test</th><th>Section</th><th>Result</th></tr></thead><tbody>'+
+    ((sel.attempts||[]).length?(sel.attempts||[]).slice().reverse().map(function(r){return '<tr><td>'+new Date(r.date).toLocaleDateString()+'</td><td>'+esc(r.title)+'</td><td>'+esc(r.sec)+'</td><td>'+esc(r.grade)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="hint">No attempts yet.</td></tr>')+'</tbody></table></div></div>';
+  }
+  box.innerHTML=html;
+  box.querySelectorAll('tr.pick').forEach(function(r){
+    var pick=function(){selSid=selSid===r.dataset.sid?null:r.dataset.sid;renderTData()};
+    r.onclick=pick;r.onkeydown=function(e){if(e.key==='Enter')pick()};
+  });
+}
+
+/* ---------- start ---------- */
+var last=load('pp_session',null);
+if(last){sid=slug(last);var l=load('pp_stu_'+sid,null);if(l){S=mergeStu(blank(last),l);S.name=last}}
+renderWho();
+route();
+})();
+</script>
+
+</body></html>
